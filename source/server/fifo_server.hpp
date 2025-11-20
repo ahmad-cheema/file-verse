@@ -13,6 +13,8 @@ struct FSRequest {
     std::string raw;   // raw JSON request
     int client_fd;     // socket fd to reply to
     std::string id;    // request_id if present
+    bool is_http = false;
+    void* pending = nullptr; // pointer to Pending when used for HTTP
 };
 
 struct FSResponse {
@@ -32,8 +34,16 @@ public:
     void stop();
 
 private:
+    struct Pending {
+        std::mutex m;
+        std::condition_variable cv;
+        std::string response;
+        bool done = false;
+    };
+
     void accept_loop();
     void reader_loop(int client_fd);
+    void handle_http_connection(int client_fd);
     void worker_loop();
 
     int port_;

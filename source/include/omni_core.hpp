@@ -15,7 +15,14 @@ extern "C" {
     
     int user_create(void* instance, void* admin_session, const char* username, const char* password, UserRole role);
     int user_login(void* instance, void** session, const char* username, const char* password);
+    int get_session_by_token(void* instance, const char* token, void** session_out);
     int user_list(void* instance, void* admin_session, UserInfo** users, int* count);
+    int file_create(void* instance, void* session, const char* path, const char* data, size_t size);
+    int file_read(void* instance, void* session, const char* path, char** buffer, size_t* size_out);
+    int file_delete(void* instance, void* session, const char* path);
+    int file_exists(void* instance, void* session, const char* path);
+    int dir_create(void* instance, void* session, const char* path);
+    int dir_list(void* instance, void* session, const char* path, FileEntry** entries, int* count);
 }
 
 /* Internal instance object and simple user index */
@@ -70,8 +77,16 @@ struct OFSInstance {
     std::vector<uint8_t> free_map;
     uint64_t num_blocks = 0;
     uint64_t block_size = 0;
+    std::vector<SessionInfo> sessions;
     std::mutex mutex;
     bool dirty = false;
+    uint64_t content_offset = 0;
+    struct InMemoryFile {
+        std::string path;
+        FileEntry entry;
+        std::vector<uint32_t> blocks;
+    };
+    std::vector<InMemoryFile> files;
 };
 
 #endif

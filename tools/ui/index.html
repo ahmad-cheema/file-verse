@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>🚀 OFS File System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Login/Signup Page -->
+  <div id="auth-page" class="page active">
+    <div class="auth-container">
+      <div class="auth-box">
+        <div class="auth-header">
+          <h1>🚀 OFS File System</h1>
+          <p>Secure cloud storage and file management</p>
+        </div>
+        
+        <div class="auth-tabs">
+          <button type="button" class="tab-btn active" data-tab="login">Login</button>
+          <button type="button" class="tab-btn" data-tab="signup">Sign Up</button>
+        </div>
+
+        <div class="auth-content">
+          <!-- Login Form -->
+          <div id="login-form" class="tab-content active">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="login-username" autocomplete="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="login-password" autocomplete="current-password" placeholder="Enter password">
+            </div>
+            <button type="button" id="login-btn" class="btn-primary">Login</button>
+            <div id="login-error" class="error-msg"></div>
+          </div>
+
+          <!-- Signup Form -->
+          <div id="signup-form" class="tab-content">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="signup-username" autocomplete="username" placeholder="Choose username">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="signup-password" autocomplete="new-password" placeholder="Choose password">
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              <select id="signup-role">
+                <option value="normal">Normal User</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+            <button type="button" id="signup-btn" class="btn-primary">Create Account</button>
+            <div id="signup-error" class="error-msg"></div>
+          </div>
+        </div>
+
+        <div class="server-config">
+          <label>Server</label>
+          <div class="server-inputs">
+            <input type="text" id="host" value="127.0.0.1" placeholder="Host">
+            <input type="text" id="port" value="8080" placeholder="Port">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="dashboard-page" class="page">
+    <nav class="navbar">
+      <div class="nav-left">
+        <h1>🚀 OFS Dashboard</h1>
+      </div>
+      <div class="nav-right">
+        <span class="user-info">👤 <span id="current-user">User</span></span>
+        <span class="user-info" style="font-size:0.8em;color:#666;margin-right:10px" id="token-display" title="Session Token">Token: <span id="token-value">none</span></span>
+        <button type="button" id="logout-btn" class="btn-secondary">Logout</button>
+      </div>
+    </nav>
+
+    <div class="dashboard-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>📁 File Explorer</h3>
+          <button type="button" id="refresh-files" class="btn-icon" title="Refresh">🔄</button>
+        </div>
+        <div class="path-bar">
+          <input type="text" id="current-path" value="/" readonly>
+          <button type="button" id="go-up" class="btn-icon" title="Go up">⬆️</button>
+        </div>
+        <div id="file-tree" class="file-tree"></div>
+        <div class="sidebar-actions">
+          <button type="button" id="new-folder-btn" class="btn-action">📁 New Folder</button>
+          <button type="button" id="new-file-btn" class="btn-action">📄 New File</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="content-panel active">
+          <div class="welcome-box">
+            <h2>👋 Welcome to OFS</h2>
+            <p>Select a file from the sidebar to view or edit, or create a new file to get started.</p>
+            <div class="quick-actions">
+              <button type="button" class="quick-btn" onclick="document.getElementById('new-file-btn').click()">
+                📄 Create File
+              </button>
+              <button type="button" class="quick-btn" onclick="document.getElementById('new-folder-btn').click()">
+                📁 Create Folder
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Editor -->
+        <div id="file-editor" class="content-panel">
+          <div class="editor-header">
+            <div class="file-info">
+              <span class="file-icon">📄</span>
+              <span id="editor-filename">Untitled</span>
+            </div>
+            <div class="editor-actions">
+              <button type="button" id="save-file" class="btn-primary">💾 Save</button>
+              <button type="button" id="delete-file" class="btn-danger">🗑️ Delete</button>
+              <button type="button" id="close-editor" class="btn-secondary">✖️ Close</button>
+            </div>
+          </div>
+          <textarea id="file-editor-content" class="file-editor-textarea" placeholder="Start typing..."></textarea>
+        </div>
+
+        <!-- Directory View -->
+        <div id="directory-view" class="content-panel">
+          <div class="dir-header">
+            <h2>📁 <span id="dir-name">Directory</span></h2>
+            <button type="button" id="close-dir" class="btn-secondary">✖️ Close</button>
+          </div>
+          <div id="dir-contents" class="dir-grid"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal for New File/Folder -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Create New</h3>
+        <button type="button" class="modal-close" onclick="closeModal()">✖️</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label id="modal-label">Name</label>
+          <input type="text" id="modal-input" placeholder="Enter name" autocomplete="off">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel" class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="button" id="modal-confirm" class="btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  
+  <!-- Debug Panel -->
+  <div id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;padding:10px;font-family:monospace;font-size:11px;max-height:150px;overflow-y:auto;border-top:2px solid #0f0;z-index:10000;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <strong>🐛 Debug Log</strong>
+      <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00;color:#fff;border:none;padding:2px 8px;cursor:pointer;">Close</button>
+    </div>
+    <div id="debug-log"></div>
+  </div>
+  
+  <script>
+    // Override console.log to show in debug panel
+    const debugLog = document.getElementById('debug-log');
+    const originalLog = console.log;
+    const originalError = console.error;
+    
+    function addDebugLine(type, ...args) {
+      const line = document.createElement('div');
+      line.textContent = `[${type}] ${args.join(' ')}`;
+      line.style.marginBottom = '2px';
+      if (type === 'ERROR') line.style.color = '#f00';
+      if (type === 'WARN') line.style.color = '#ff0';
+      debugLog.appendChild(line);
+      debugLog.scrollTop = debugLog.scrollHeight;
+      // Keep only last 50 lines
+      while (debugLog.children.length > 50) debugLog.removeChild(debugLog.firstChild);
+    }
+    
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      addDebugLine('LOG', ...args);
+    };
+    
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      addDebugLine('ERROR', ...args);
+    };
+  </script>
+</body>
+</html>

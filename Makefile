@@ -8,8 +8,12 @@ SERVER_OUT = tools/fifo_server
 
 CLIENT_SRCS = tools/fs_client.cpp
 CLIENT_OUT = tools/fs_client
+FILE_TEST_SRCS = tools/fs_file_test.cpp
+FILE_TEST_OUT = tools/fs_file_test
 
 all: $(OUT) $(SERVER_OUT) $(CLIENT_OUT)
+
+all: $(OUT) $(SERVER_OUT) $(CLIENT_OUT) $(FILE_TEST_OUT)
 
 $(OUT): $(SRCS)
 	$(CC) $(CFLAGS) -o $(OUT) $(SRCS)
@@ -19,6 +23,9 @@ $(SERVER_OUT): $(SERVER_SRCS)
 
 $(CLIENT_OUT): $(CLIENT_SRCS)
 	$(CC) $(CFLAGS) -o $(CLIENT_OUT) $(CLIENT_SRCS)
+
+$(FILE_TEST_OUT): $(FILE_TEST_SRCS) source/omni_core.cpp
+	$(CC) $(CFLAGS) -o $(FILE_TEST_OUT) $(FILE_TEST_SRCS) source/omni_core.cpp
 
 clean:
 	rm -f $(OUT) $(SERVER_OUT) $(CLIENT_OUT) test_student.omni
